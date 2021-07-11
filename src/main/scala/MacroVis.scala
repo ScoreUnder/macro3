@@ -7,7 +7,6 @@ class MacroVis[Q <: Quotes & Singleton](using val q: Q) {
   def vis[A: Vis](a: A): Visualized = summon[Vis[A]].vis(a)
 
   given symbolInstance: Vis[q.reflect.Symbol] = new VisBuilder[Symbol]
-    .name(_.name)
     .attribute("fullName")(_.fullName)
     .attributeReference("mayBeOwner")(_.maybeOwner)
     .attributeReference("privateWithin")(_.privateWithin)
@@ -26,11 +25,6 @@ class MacroVis[Q <: Quotes & Singleton](using val q: Q) {
     .children("allOverriddenSymbols")(_.allOverriddenSymbols.toSeq)
     .attribute("primaryConstructor")(_.primaryConstructor)
     .children("caseFields")(_.caseFields)
-//    // signature
-    .attribute("moduleClass")(_.moduleClass)
-    .attribute("companionClass")(_.companionClass)
-    .attribute("companionModule")(_.companionModule)
-    .children("children")(_.children)
     .build()
     
   given typeReprInstance: Vis[q.reflect.TypeRepr] = new VisBuilder[TypeRepr]
