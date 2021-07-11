@@ -17,7 +17,7 @@ type VisBuilderCtx = IdentityHashMap[AnyRef, Unit]
 case class VisBuilder[A](
   private val attrRefsFun: Vector[A => (String, String)] = Vector.empty,
 ):
-  def attributeReference[B: Vis](name: String)(f: A => B)(using v: => Vis[B]): VisBuilder[A] = copy(attrRefsFun = attrRefsFun :+ (a => name -> "name"))
+  def attributeReference[B: Vis](name: String)(f: A => B): VisBuilder[A] = copy(attrRefsFun = attrRefsFun :+ (a => name -> "name"))
 
   def build(): Vis[A] = new Vis[A]:
     override def vis(a: A): Visualized =
