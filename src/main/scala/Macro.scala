@@ -10,4 +10,4 @@ object Macro {
 }
 
 object MacroVis:
-  given symbolInstance: String = symbolInstance
+  lazy val symbolInstance: String = symbolInstance
