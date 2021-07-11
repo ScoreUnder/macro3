@@ -23,7 +23,7 @@ case class VisBuilder[A](
     override def vis(a: A): Visualized =
       Visualized(
         attrRefsFun.map(_(a)).map {
-          case (name, value) => name -> (() => Visualized(Map.empty))
+          case (name, value) => name -> (() => ???)
         }.toMap,
       )
 
