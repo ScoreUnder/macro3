@@ -15,16 +15,14 @@ case class Visualized(
 
 type VisBuilderCtx = IdentityHashMap[AnyRef, Unit]
 case class VisBuilder[A](
-  private val attrsFun: Vector[A => (String, () => Visualized)] = Vector.empty,
   private val attrRefsFun: Vector[A => (String, String)] = Vector.empty,
 ):
-  def attribute[B](name: String)(f: A => B)(using v: => Vis[B]): VisBuilder[A] = copy(attrsFun = attrsFun :+ (a => name -> (() => v.vis(f(a)))))
   def attributeReference[B: Vis](name: String)(f: A => B)(using v: => Vis[B]): VisBuilder[A] = copy(attrRefsFun = attrRefsFun :+ (a => name -> "name"))
 
   def build(): Vis[A] = new Vis[A]:
     override def vis(a: A): Visualized =
       Visualized(
-        attrsFun.map(_(a)).toMap ++ attrRefsFun.map(_(a)).map {
+        attrRefsFun.map(_(a)).map {
           case (name, value) => name -> (() => Visualized(Map.empty))
         }.toMap,
       )
