@@ -1,9 +1,7 @@
-import scala.quoted._
-
 object Macro:
   inline def impl: String = ${doImpl}
 
-  private def doImpl(using Quotes): Expr[String] =
+  private def doImpl =
     symbolInstance
     ???
 
