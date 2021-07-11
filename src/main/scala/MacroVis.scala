@@ -65,22 +65,22 @@ class MacroVis[Q <: Quotes & Singleton](using val q: Q) {
 
 case class Visualized(
   name: String,
-  attributes: Map[String, Visualized],
-  children: Map[String, Seq[Visualized]]
+  attributes: Map[String, () => Visualized],
+  children: Map[String, () => Seq[Visualized]]
 )
 
 type VisBuilderCtx = IdentityHashMap[AnyRef, Unit]
 case class VisBuilder[A](
   private val nameFun: A => String = (_: A) => "noname",
-  private val attrsFun: Vector[A => (String, Visualized)] = Vector.empty,
+  private val attrsFun: Vector[A => (String, () => Visualized)] = Vector.empty,
   private val attrRefsFun: Vector[A => (String, String)] = Vector.empty,
-  private val childrenFun: Vector[A => (String, Seq[Visualized])] = Vector.empty,
+  private val childrenFun: Vector[A => (String, () => Seq[Visualized])] = Vector.empty,
   private val flagsFun: Vector[A => Option[String]] = Vector.empty
 ) {
   def name(f: A => String): VisBuilder[A] = copy(nameFun = f)
-  def attribute[B](name: String)(f: A => B)(using v: => Vis[B]): VisBuilder[A] = copy(attrsFun = attrsFun :+ (a => name -> v.vis(f(a))))
+  def attribute[B](name: String)(f: A => B)(using v: => Vis[B]): VisBuilder[A] = copy(attrsFun = attrsFun :+ (a => name -> (() => v.vis(f(a)))))
   def attributeReference[B: Vis](name: String)(f: A => B)(using v: => Vis[B]): VisBuilder[A] = copy(attrRefsFun = attrRefsFun :+ (a => name -> v.name(f(a))))
-  def children[B](name: String)(f: A => Seq[B])(using v: => Vis[B]): VisBuilder[A] = copy(childrenFun = childrenFun :+ (a => name -> f(a).map(v.vis)))
+  def children[B](name: String)(f: A => Seq[B])(using v: => Vis[B]): VisBuilder[A] = copy(childrenFun = childrenFun :+ (a => name -> (() => f(a).map(v.vis))))
   def flag(name: String)(f: A => Boolean): VisBuilder[A] = copy(flagsFun = flagsFun :+ (a => ( if f(a) then Some(name) else None)))
 
   def build(): Vis[A] = new Vis[A] {
@@ -92,7 +92,7 @@ case class VisBuilder[A](
       Visualized(
         name = nameFun(a),
         attributes = attrsFun.map(_(a)).toMap ++ attrRefsFun.map(_(a)).map {
-          case (name, value) => name -> Visualized(value, Map.empty, Map.empty)
+          case (name, value) => name -> (() => Visualized(value, Map.empty, Map.empty))
         }.toMap,
         children = childrenFun.map(_(a)).toMap
       )
