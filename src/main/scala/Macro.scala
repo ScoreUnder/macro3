@@ -1,13 +1,10 @@
 import scala.quoted._
 
-object Macro {
+object Macro:
   inline def impl: String = ${doImpl}
 
-  private def doImpl(using Quotes): Expr[String] = {
-    MacroVis.symbolInstance
+  private def doImpl(using Quotes): Expr[String] =
+    symbolInstance
     ???
-  }
-}
 
-object MacroVis:
   lazy val symbolInstance: String = symbolInstance
