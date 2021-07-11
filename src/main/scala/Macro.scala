@@ -4,9 +4,7 @@ object Macro {
   inline def impl: String = ${doImpl}
 
   private def doImpl(using Quotes): Expr[String] = {
-    import quotes.reflect.Symbol
-    val mv = new MacroVis(using quotes)
-    mv.symbolInstance
+    new MacroVis(using quotes).symbolInstance
     ???
   }
 }
