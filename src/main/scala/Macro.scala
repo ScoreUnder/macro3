@@ -4,11 +4,10 @@ object Macro {
   inline def impl: String = ${doImpl}
 
   private def doImpl(using Quotes): Expr[String] = {
-    new MacroVis(using quotes).symbolInstance
+    MacroVis.symbolInstance
     ???
   }
 }
 
-class MacroVis[Q <: Quotes & Singleton](using val q: Q) {
+object MacroVis:
   given symbolInstance: String = summon[String]
-}
