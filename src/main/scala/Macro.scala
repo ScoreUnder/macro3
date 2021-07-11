@@ -8,3 +8,7 @@ object Macro {
     ???
   }
 }
+
+class MacroVis[Q <: Quotes & Singleton](using val q: Q) {
+  given symbolInstance: String = summon[String]
+}
