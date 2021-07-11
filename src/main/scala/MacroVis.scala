@@ -31,9 +31,6 @@ trait Vis[A]:
   def vis(a: A): Visualized
 
 object Vis:
-  given stringInstance: Vis[String] with
-    override def vis(a: String): Visualized = Visualized(Map.empty)
-
   given optionInstance[A](using v: Vis[A]): Vis[Option[A]] with
     override def vis(a: Option[A]): Visualized = a match
       case None => Visualized(Map.empty)
