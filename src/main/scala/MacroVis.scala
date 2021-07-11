@@ -4,21 +4,9 @@ import java.util.IdentityHashMap
 class MacroVis[Q <: Quotes & Singleton](using val q: Q) {
   import q.reflect._
 
-  def vis[A: Vis](a: A): Visualized = summon[Vis[A]].vis(a)
-
   given symbolInstance: Vis[q.reflect.Symbol] = new VisBuilder[Symbol]
     .attributeReference("mayBeOwner")(_.maybeOwner)
     .build()
-
-  given typeReprInstance: Vis[q.reflect.TypeRepr] = new VisBuilder[TypeRepr]
-    .name(_ => "name")
-    .build()
-
-  given termInstance: Vis[q.reflect.Term] = new VisBuilder[Term]
-    .name(_ => "name")
-    .build()
-
-  println(symbolInstance)
 }
 
 case class Visualized(
