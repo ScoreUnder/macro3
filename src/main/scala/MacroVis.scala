@@ -7,10 +7,7 @@ class MacroVis[Q <: Quotes & Singleton](using val q: Q) {
   def vis[A: Vis](a: A): Visualized = summon[Vis[A]].vis(a)
 
   given symbolInstance: Vis[q.reflect.Symbol] = new VisBuilder[Symbol]
-    .attribute("fullName")(_.fullName)
     .attributeReference("mayBeOwner")(_.maybeOwner)
-    .attributeReference("privateWithin")(_.privateWithin)
-    .attributeReference("protectedWithin")(_.protectedWithin)
     .build()
 
   given typeReprInstance: Vis[q.reflect.TypeRepr] = new VisBuilder[TypeRepr]
