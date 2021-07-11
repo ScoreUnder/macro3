@@ -12,7 +12,6 @@ class MacroVis[Q <: Quotes & Singleton](using val q: Q) {
 case class Visualized(
   name: String,
   attributes: Map[String, () => Visualized],
-  children: Map[String, () => Seq[Visualized]]
 )
 
 type VisBuilderCtx = IdentityHashMap[AnyRef, Unit]
@@ -20,25 +19,22 @@ case class VisBuilder[A](
   private val nameFun: A => String = (_: A) => "noname",
   private val attrsFun: Vector[A => (String, () => Visualized)] = Vector.empty,
   private val attrRefsFun: Vector[A => (String, String)] = Vector.empty,
-  private val childrenFun: Vector[A => (String, () => Seq[Visualized])] = Vector.empty,
 ) {
   def name(f: A => String): VisBuilder[A] = copy(nameFun = f)
   def attribute[B](name: String)(f: A => B)(using v: => Vis[B]): VisBuilder[A] = copy(attrsFun = attrsFun :+ (a => name -> (() => v.vis(f(a)))))
   def attributeReference[B: Vis](name: String)(f: A => B)(using v: => Vis[B]): VisBuilder[A] = copy(attrRefsFun = attrRefsFun :+ (a => name -> v.name(f(a))))
-  def children[B](name: String)(f: A => Seq[B])(using v: => Vis[B]): VisBuilder[A] = copy(childrenFun = childrenFun :+ (a => name -> (() => f(a).map(v.vis))))
 
   def build(): Vis[A] = new Vis[A] {
     override def vis(a: A): Visualized = vis(a, new IdentityHashMap[Any, Unit])
     override def name(a: A): String = nameFun(a)
     override def vis(a: A, ctx: IdentityHashMap[Any, Unit]): Visualized = {
-      if ctx.containsKey(a) then return Visualized(nameFun(a) + " <cycle>", Map.empty, Map.empty)
+      if ctx.containsKey(a) then return Visualized(nameFun(a) + " <cycle>", Map.empty)
       ctx.put(a, ())
       Visualized(
         name = nameFun(a),
         attributes = attrsFun.map(_(a)).toMap ++ attrRefsFun.map(_(a)).map {
-          case (name, value) => name -> (() => Visualized(value, Map.empty, Map.empty))
+          case (name, value) => name -> (() => Visualized(value, Map.empty))
         }.toMap,
-        children = childrenFun.map(_(a)).toMap
       )
     }
   }
@@ -51,10 +47,10 @@ trait Vis[A] {
 }
 object Vis:
   given stringInstance: Vis[String] with
-    override def vis(a: String): Visualized = Visualized(name = a, attributes = Map.empty, children = Map.empty)
+    override def vis(a: String): Visualized = Visualized(name = a, attributes = Map.empty)
 
   given optionInstance[A](using v: Vis[A]): Vis[Option[A]] with
     override def vis(a: Option[A]): Visualized = a match {
-      case None => Visualized(name = "None", attributes = Map.empty, children = Map.empty)
+      case None => Visualized(name = "None", attributes = Map.empty)
       case Some(vv) => v.vis(vv)
     }
