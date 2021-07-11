@@ -7,6 +7,6 @@ object Macro {
     import quotes.reflect.Symbol
     val mv = new MacroVis(using quotes)
     mv.symbolInstance.vis(Symbol.spliceOwner.owner.owner)
-    Expr(Symbol.spliceOwner.owner.owner.tree.toString)
+    ???
   }
 }
