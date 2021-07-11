@@ -10,4 +10,4 @@ object Macro {
 }
 
 object MacroVis:
-  given symbolInstance: String = summon[String]
+  given symbolInstance: String = symbolInstance
