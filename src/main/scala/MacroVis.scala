@@ -15,24 +15,6 @@ class MacroVis[Q <: Quotes & Singleton](using val q: Q) {
 //    .attribute("pos")(_.pos)
     .attribute("docstring")(_.docstring.map(_.take(10)))
     .children("annotations")(_.annotations)
-    .flag("isDefinedInCurrentRun")(_.isDefinedInCurrentRun)
-    .flag("isLocalDummy")(_.isLocalDummy)
-    .flag("isRefinementClass")(_.isRefinementClass)
-    .flag("isAliasType")(_.isAliasType)
-    .flag("isAnonymousClass")(_.isAnonymousClass)
-    .flag("isAnonymousFunction")(_.isAnonymousFunction)
-    .flag("isAbstractType")(_.isAbstractType)
-    .flag("isClassConstructor")(_.isClassConstructor)
-    .flag("isType")(_.isType)
-    .flag("isTerm")(_.isTerm)
-    .flag("isPackageDef")(_.isPackageDef)
-    .flag("isClassDef")(_.isClassDef)
-    .flag("isTypeDef")(_.isTypeDef)
-    .flag("isValDef")(_.isTypeDef)
-    .flag("isDefDef")(_.isTypeDef)
-    .flag("isBind")(_.isTypeDef)
-    .flag("isNoSymbol")(_.isTypeDef)
-    .flag("exists")(_.isTypeDef)
     .children("declaredFields")(_.declaredFields)
     .children("memberFields")(_.memberFields)
     .children("declaredMethods")(_.declaredMethods)
@@ -44,7 +26,6 @@ class MacroVis[Q <: Quotes & Singleton](using val q: Q) {
     .children("allOverriddenSymbols")(_.allOverriddenSymbols.toSeq)
     .attribute("primaryConstructor")(_.primaryConstructor)
     .children("caseFields")(_.caseFields)
-    .flag("isTypeParam")(_.isTypeParam)
 //    // signature
     .attribute("moduleClass")(_.moduleClass)
     .attribute("companionClass")(_.companionClass)
@@ -75,13 +56,11 @@ case class VisBuilder[A](
   private val attrsFun: Vector[A => (String, () => Visualized)] = Vector.empty,
   private val attrRefsFun: Vector[A => (String, String)] = Vector.empty,
   private val childrenFun: Vector[A => (String, () => Seq[Visualized])] = Vector.empty,
-  private val flagsFun: Vector[A => Option[String]] = Vector.empty
 ) {
   def name(f: A => String): VisBuilder[A] = copy(nameFun = f)
   def attribute[B](name: String)(f: A => B)(using v: => Vis[B]): VisBuilder[A] = copy(attrsFun = attrsFun :+ (a => name -> (() => v.vis(f(a)))))
   def attributeReference[B: Vis](name: String)(f: A => B)(using v: => Vis[B]): VisBuilder[A] = copy(attrRefsFun = attrRefsFun :+ (a => name -> v.name(f(a))))
   def children[B](name: String)(f: A => Seq[B])(using v: => Vis[B]): VisBuilder[A] = copy(childrenFun = childrenFun :+ (a => name -> (() => f(a).map(v.vis))))
-  def flag(name: String)(f: A => Boolean): VisBuilder[A] = copy(flagsFun = flagsFun :+ (a => ( if f(a) then Some(name) else None)))
 
   def build(): Vis[A] = new Vis[A] {
     override def vis(a: A): Visualized = vis(a, new IdentityHashMap[Any, Unit])
