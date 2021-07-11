@@ -11,22 +11,8 @@ class MacroVis[Q <: Quotes & Singleton](using val q: Q) {
     .attributeReference("mayBeOwner")(_.maybeOwner)
     .attributeReference("privateWithin")(_.privateWithin)
     .attributeReference("protectedWithin")(_.protectedWithin)
-//    .attribute("pos")(_.pos)
-    .attribute("docstring")(_.docstring.map(_.take(10)))
-    .children("annotations")(_.annotations)
-    .children("declaredFields")(_.declaredFields)
-    .children("memberFields")(_.memberFields)
-    .children("declaredMethods")(_.declaredMethods)
-    .children("memberMethods")(_.memberMethods)
-    .children("declaredTypes")(_.declaredTypes)
-    .children("memberTypes")(_.memberTypes)
-    .children("declarations")(_.declarations)
-    // paramSymss
-    .children("allOverriddenSymbols")(_.allOverriddenSymbols.toSeq)
-    .attribute("primaryConstructor")(_.primaryConstructor)
-    .children("caseFields")(_.caseFields)
     .build()
-    
+
   given typeReprInstance: Vis[q.reflect.TypeRepr] = new VisBuilder[TypeRepr]
     .name(_ => "name")
     .build()
