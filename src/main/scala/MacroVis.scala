@@ -29,9 +29,3 @@ case class VisBuilder[A](
 
 trait Vis[A]:
   def vis(a: A): Visualized
-
-object Vis:
-  given optionInstance[A](using v: Vis[A]): Vis[Option[A]] with
-    override def vis(a: Option[A]): Visualized = a match
-      case None => Visualized(Map.empty)
-      case Some(vv) => v.vis(vv)
